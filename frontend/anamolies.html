@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BMTC — Anomalies</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body class="landing-body">
+<main class="landing-page">
+  <section class="hero-template page-template">
+    <header class="template-nav">
+      <div class="brand-wrap">
+        <span class="brand-dot"></span>
+        <span class="brand-name">BMTC Route Intelligence</span>
+      </div>
+      <nav class="template-links" aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a href="routes.html">Routes</a>
+        <a href="coverage.html">Coverage</a>
+        <a href="clusters.html">Clusters</a>
+        <a href="network.html">Network</a>
+        <a href="anamolies.html" class="is-active">Anomalies</a>
+      </nav>
+    </header>
+    <div class="subpage-head">
+      <h1>ANOMALY DETECTION</h1>
+      <p>Isolation Forest highlights statistically unusual BMTC routes.</p>
+      <span class="subpage-status danger">214 routes flagged</span>
+    </div>
+  </section>
+
+  <section class="content futuristic-content">
+
+    <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,107,107,.12);color:#ff6b6b">⚠</div><div><div class="kpi-num">214</div><div class="kpi-label">Anomalous routes</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon" style="background:rgba(247,201,72,.12);color:#f7c948">%</div><div><div class="kpi-num">5%</div><div class="kpi-label">Contamination rate</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon" style="background:rgba(110,181,255,.12);color:#6eb5ff">V</div><div><div class="kpi-num">Volvo</div><div class="kpi-label">Most flagged type</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon" style="background:rgba(61,214,140,.12);color:#3dd68c">C</div><div><div class="kpi-num">Central</div><div class="kpi-label">Most flagged zone</div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Why these routes are anomalies</h3><span class="card-tag">Isolation Forest</span></div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.8;max-width:700px;margin-bottom:16px">
+        Isolation Forest isolates anomalies by randomly splitting features. Points that are isolated quickly
+        (fewer splits needed) are anomalies — they are statistically different from the bulk of routes.
+        Common reasons a route gets flagged here:
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px">
+          <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--accent)">Premium type in wrong zone</div>
+          <div style="font-size:12px;color:var(--muted)">A Volvo or Vajra route in a peripheral zone is unusual — premium routes almost always run through Central.</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px">
+          <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--blue)">Very high hub + unique destination</div>
+          <div style="font-size:12px;color:var(--muted)">Routes from KR Market or Kempegowda to destinations served by only 1 route are structurally isolated.</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px">
+          <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--green)">Circular Volvo / premium</div>
+          <div style="font-size:12px;color:var(--muted)">A circular route (origin = destination) that is also a premium service type is extremely rare and gets flagged.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Flagged routes</h3>
+        <span class="card-tag">214 total — showing 8</span>
+      </div>
+      <div id="anom-list"></div>
+    </div>
+
+  </section>
+</main>
+<script src="data.js"></script>
+<script>
+const zoneBadge = z => {
+  const map = { Central:'badge-yellow', North:'badge-blue', South:'badge-green', East:'badge-red', West:'badge-purple', Other:'badge-gray' };
+  return `<span class="badge ${map[z]||'badge-gray'}">${z}</span>`;
+};
+const typeBadge = t => {
+  const premium = ['Vajra','Volvo','Airport','Express'];
+  return `<span class="badge ${premium.includes(t)?'badge-red':'badge-gray'}">${t}</span>`;
+};
+
+document.getElementById('anom-list').innerHTML = DATA.anomalies.map(a=>`
+  <div class="anom-card">
+    <div style="flex:1">
+      <div class="anom-route">${a.route_id}</div>
+      <div class="anom-name">${a.name}</div>
+      <div class="anom-meta">${zoneBadge(a.zone)} ${typeBadge(a.type)}</div>
+    </div>
+    <div class="anom-right">
+      <div class="anom-freq">${a.origin_freq.toLocaleString()}</div>
+      <div class="anom-freq-label">origin routes</div>
+    </div>
+  </div>`).join('');
+</script>
+</body>
+</html>

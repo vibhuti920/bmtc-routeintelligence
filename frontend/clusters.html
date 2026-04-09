@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BMTC — Clustering</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body class="landing-body">
+<main class="landing-page">
+  <section class="hero-template page-template">
+    <header class="template-nav">
+      <div class="brand-wrap">
+        <span class="brand-dot"></span>
+        <span class="brand-name">BMTC Route Intelligence</span>
+      </div>
+      <nav class="template-links" aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a href="routes.html">Routes</a>
+        <a href="coverage.html">Coverage</a>
+        <a href="clusters.html" class="is-active">Clusters</a>
+        <a href="network.html">Network</a>
+        <a href="anamolies.html">Anomalies</a>
+      </nav>
+    </header>
+    <div class="subpage-head">
+      <h1>ROUTE CLUSTERS</h1>
+      <p>K-Means segmentation into four natural route behavior groups.</p>
+      <span class="subpage-status">K = 4 optimal</span>
+    </div>
+  </section>
+
+  <section class="content futuristic-content">
+
+    <div class="card">
+      <div class="card-header"><h3>Cluster overview</h3><span class="card-tag">K-Means K=4</span></div>
+      <div class="bar-list" id="cluster-size-bars"></div>
+    </div>
+
+    <div class="cluster-grid" id="cluster-cards"></div>
+
+    <div class="card">
+      <div class="card-header"><h3>How clustering works here</h3><span class="card-tag">Method</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div>
+          <p style="font-size:13px;font-weight:500;margin-bottom:8px">Features used</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><div style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>zone_enc — which zone the route passes through</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><div style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>type_enc — Ordinary / Special / Express / etc.</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><div style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>name_length — length of route_long_name</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><div style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>origin_freq — how many routes share this origin</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><div style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>dest_freq — how many routes share this destination</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><div style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>is_premium — Vajra / Volvo / Airport / Express flag</div>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:13px;font-weight:500;margin-bottom:8px">Why K=4</p>
+          <p style="font-size:12px;color:var(--muted);line-height:1.8">The elbow method on inertia scores across K=2 to K=9 shows the sharpest bend at K=4. Beyond 4 clusters, inertia reduction becomes marginal while interpretability suffers.</p>
+          <br/>
+          <p style="font-size:12px;color:var(--muted);line-height:1.8">The 4 clusters map cleanly to real BMTC network structure: peripheral special routes, central ordinary routes, central variants, and the Shivajinagar secondary hub corridor.</p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>
+<script src="data.js"></script>
+<script>
+const total = DATA.clusters.reduce((s,c)=>s+c.size,0);
+document.getElementById('cluster-size-bars').innerHTML = DATA.clusters.map(c=>`
+  <div class="bar-item">
+    <div class="bar-meta"><span class="bar-name">${c.label}</span><span class="bar-val">${c.size.toLocaleString()} routes (${(c.size/total*100).toFixed(1)}%)</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:${c.size/total*100}%;background:${c.color}"></div></div>
+  </div>`).join('');
+
+document.getElementById('cluster-cards').innerHTML = DATA.clusters.map(c=>`
+  <div class="cluster-card" style="border-left-color:${c.color}">
+    <div class="cc-header">
+      <div>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--muted);margin-bottom:4px">Cluster ${c.id}</div>
+        <div class="cc-title">${c.label}</div>
+      </div>
+      <div class="cc-size" style="color:${c.color}">${c.size.toLocaleString()}</div>
+    </div>
+    <div class="cc-desc">${c.desc}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <span class="badge badge-gray">Zone: ${c.top_zone}</span>
+      <span class="badge badge-gray">Type: ${c.top_type}</span>
+      <span class="badge badge-gray">Avg name: ${c.avg_name_len} chars</span>
+    </div>
+    <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px">SAMPLE ROUTES</div>
+    ${c.samples.map(s=>`<div class="cc-route">${s}</div>`).join('')}
+  </div>`).join('');
+</script>
+</body>
+</html>

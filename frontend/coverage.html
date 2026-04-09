@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BMTC — Coverage & Gaps</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body class="landing-body">
+<main class="landing-page">
+  <section class="hero-template page-template">
+    <header class="template-nav">
+      <div class="brand-wrap">
+        <span class="brand-dot"></span>
+        <span class="brand-name">BMTC Route Intelligence</span>
+      </div>
+      <nav class="template-links" aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a href="routes.html">Routes</a>
+        <a href="coverage.html" class="is-active">Coverage</a>
+        <a href="clusters.html">Clusters</a>
+        <a href="network.html">Network</a>
+        <a href="anamolies.html">Anomalies</a>
+      </nav>
+    </header>
+    <div class="subpage-head">
+      <h1>COVERAGE AND GAPS</h1>
+      <p>Underserved stops, high-coverage hubs, and imbalance hotspots.</p>
+      <span class="subpage-status">798 underserved stops</span>
+    </div>
+  </section>
+
+  <section class="content futuristic-content">
+
+    <div class="cov-levels">
+      <div class="cov-card" style="border-left:3px solid #3dd68c">
+        <div class="cov-num" style="color:#3dd68c">312</div>
+        <div class="cov-label">High Coverage</div>
+        <div class="cov-desc">100+ routes serve this stop. Major hubs like Kempegowda, KR Market.</div>
+      </div>
+      <div class="cov-card" style="border-left:3px solid #6eb5ff">
+        <div class="cov-num" style="color:#6eb5ff">489</div>
+        <div class="cov-label">Moderate Coverage</div>
+        <div class="cov-desc">20–99 routes. Well-served neighbourhood stops.</div>
+      </div>
+      <div class="cov-card" style="border-left:3px solid #f7c948">
+        <div class="cov-num" style="color:#f7c948">876</div>
+        <div class="cov-label">Low Coverage</div>
+        <div class="cov-desc">5–19 routes. Functional but limited alternatives.</div>
+      </div>
+      <div class="cov-card" style="border-left:3px solid #ff6b6b">
+        <div class="cov-num" style="color:#ff6b6b">798</div>
+        <div class="cov-label">Underserved</div>
+        <div class="cov-desc">Only 1 route. Zero alternatives for residents.</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><h3>Underserved stop samples</h3><span class="card-tag">Single-route stops</span></div>
+        <div id="underserved-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Top hubs by route count</h3><span class="card-tag">High coverage</span></div>
+        <div class="bar-list" id="hub-bars"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Coverage imbalance insight</h3><span class="card-tag">Key finding</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <p style="font-size:13px;color:var(--muted);line-height:1.8">
+            The top 2 hubs — <strong style="color:var(--text)">Kempegowda Bus Station</strong> and
+            <strong style="color:var(--text)">Krishnarajendra Market</strong> — together serve
+            <strong style="color:var(--accent)">2,032 routes</strong>, nearly 48% of the entire network.
+            Meanwhile, 798 stops are reachable by exactly one route.
+          </p>
+          <br/>
+          <p style="font-size:13px;color:var(--muted);line-height:1.8">
+            This concentration creates a <strong style="color:var(--red)">fragile hub-spoke topology</strong>.
+            If either major hub faces disruption, roughly half the city's bus connectivity is affected.
+          </p>
+        </div>
+        <div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Top 2 hubs share of network</div>
+              <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+                <div style="width:48%;height:100%;background:var(--accent);border-radius:4px"></div>
+              </div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:4px">48%</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Underserved stops share</div>
+              <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+                <div style="width:32%;height:100%;background:var(--red);border-radius:4px"></div>
+              </div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--red);margin-top:4px">32% of all stops</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">East zone route deficit</div>
+              <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+                <div style="width:22%;height:100%;background:var(--blue);border-radius:4px"></div>
+              </div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--blue);margin-top:4px">229 vs 328 in South</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>
+<script src="data.js"></script>
+<script>
+document.getElementById('underserved-list').innerHTML = DATA.underserved_sample.map(s => `
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+    <span style="font-size:12px">${s}</span>
+    <span class="badge badge-red">1 route</span>
+  </div>`).join('');
+
+const maxH = DATA.top_hubs[0].routes;
+document.getElementById('hub-bars').innerHTML = DATA.top_hubs.map(h => `
+  <div class="bar-item">
+    <div class="bar-meta"><span class="bar-name">${h.name}</span><span class="bar-val">${h.routes}</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:${h.routes/maxH*100}%;background:var(--blue)"></div></div>
+  </div>`).join('');
+</script>
+</body>
+</html>

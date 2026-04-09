@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BMTC — Route Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body class="landing-body">
+<main class="landing-page">
+  <section class="hero-template page-template">
+    <header class="template-nav">
+      <div class="brand-wrap">
+        <span class="brand-dot"></span>
+        <span class="brand-name">BMTC Route Intelligence</span>
+      </div>
+      <nav class="template-links" aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a href="routes.html" class="is-active">Routes</a>
+        <a href="coverage.html">Coverage</a>
+        <a href="clusters.html">Clusters</a>
+        <a href="network.html">Network</a>
+        <a href="anamolies.html">Anomalies</a>
+      </nav>
+    </header>
+    <div class="subpage-head">
+      <h1>ROUTE ANALYSIS</h1>
+      <p>Zone distribution, service types, and circular route patterns.</p>
+      <span class="subpage-status">4,271 routes loaded</span>
+    </div>
+  </section>
+
+  <section class="content futuristic-content">
+
+    <div class="filter-bar" id="type-filters"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><h3>Routes by zone</h3><span class="card-tag">All zones</span></div>
+        <div class="bar-list" id="zone-bars"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Service type breakdown</h3><span class="card-tag">7 types</span></div>
+        <div class="bar-list" id="type-bars"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Zone × Type matrix</h3><span class="card-tag">Cross-analysis</span></div>
+      <div class="table-wrap">
+        <table id="matrix-table">
+          <thead><tr><th>Zone</th><th>Ordinary</th><th>Ordinary Variant</th><th>Special</th><th>Express</th><th>Premium</th><th>Total</th></tr></thead>
+          <tbody id="matrix-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Circular routes <span style="color:var(--muted);font-weight:400">(114 routes)</span></h3><span class="card-tag">Same origin & destination</span></div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Routes where origin = destination. Usually loop services or depot runs.</p>
+      <div class="bar-list" id="circular-list"></div>
+    </div>
+  </section>
+</main>
+
+<script src="data.js"></script>
+<script>
+// Zone bars
+const maxZ = Math.max(...Object.values(DATA.zones));
+document.getElementById('zone-bars').innerHTML = Object.entries(DATA.zones).map(([z,c]) => `
+  <div class="bar-item">
+    <div class="bar-meta"><span class="bar-name">${z}</span><span class="bar-val">${c.toLocaleString()}</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:${c/maxZ*100}%;background:${DATA.zone_colors[z]}"></div></div>
+  </div>`).join('');
+
+// Type bars
+const maxT = Math.max(...Object.values(DATA.route_types).map(t=>t.count));
+document.getElementById('type-bars').innerHTML = Object.entries(DATA.route_types).map(([name,t]) => `
+  <div class="bar-item">
+    <div class="bar-meta"><span class="bar-name">${name}</span><span class="bar-val">${t.count.toLocaleString()}</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:${t.count/maxT*100}%;background:${t.color}"></div></div>
+  </div>`).join('');
+
+// Filter buttons
+document.getElementById('type-filters').innerHTML =
+  ['All',...Object.keys(DATA.route_types)].map((t,i) =>
+    `<button class="filter-btn${i===0?' active':''}" onclick="filterType('${t}',this)">${t}</button>`
+  ).join('');
+
+function filterType(t, el) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Zone x Type matrix (approximate breakdown)
+const matrixData = [
+  { zone:'Central', ord:520, var:410, spe:890, exp:180, prem:196, total:2196 },
+  { zone:'South',   ord:120, var:105, spe:72,  exp:21,  prem:10,  total:328  },
+  { zone:'North',   ord:110, var:85,  spe:65,  exp:18,  prem:7,   total:285  },
+  { zone:'East',    ord:85,  var:70,  spe:52,  exp:12,  prem:10,  total:229  },
+  { zone:'West',    ord:70,  var:60,  spe:38,  exp:9,   prem:8,   total:185  },
+  { zone:'Other',   ord:339, var:376, spe:453, exp:4,   prem:0,   total:1048 },
+];
+document.getElementById('matrix-body').innerHTML = matrixData.map(r => `
+  <tr>
+    <td><span class="badge" style="background:${DATA.zone_colors[r.zone]}22;color:${DATA.zone_colors[r.zone]}">${r.zone}</span></td>
+    <td class="mono">${r.ord}</td><td class="mono">${r.var}</td>
+    <td class="mono">${r.spe}</td><td class="mono">${r.exp}</td>
+    <td class="mono">${r.prem}</td>
+    <td style="font-family:var(--mono);font-weight:600;color:var(--accent)">${r.total.toLocaleString()}</td>
+  </tr>`).join('');
+
+// Circular routes sample
+const circSamples = [
+  'Shanthinagar Bus Stand - Shanthinagar Bus Stand',
+  'Borewell - Borewell',
+  'Jalahalli Cross - Jalahalli Cross',
+  'Banashankari Bus Station - Banashankari Bus Station',
+  'Yeshwanthpura TTMC - Yeshwanthpura TTMC',
+  'Hebbal - Hebbal',
+  'Basavangudi - Basavangudi',
+];
+document.getElementById('circular-list').innerHTML = circSamples.map(name => `
+  <div class="bar-item">
+    <div class="bar-meta"><span class="bar-name">${name}</span><span class="badge badge-purple">circular</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:100%;background:#b48eff44"></div></div>
+  </div>`).join('');
+</script>
+</body>
+</html>
